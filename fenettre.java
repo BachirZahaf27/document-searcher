@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.JOptionPane;
 import javax.swing.JFileChooser;
+import net.proteanit.sql.DbUtils;
 
 /**
  *
@@ -48,7 +49,28 @@ ResultSet resultat=null;
        nom_doc.setText(nom);
        chemp_doc.setText(chemp);  
     }
-    
+    private void Update_table() {
+    try{
+        String sql ="select * from Test.document";
+        stat=conn.prepareStatement(sql);
+        rs=stat.executeQuery();
+        table_doc.setModel(DbUtils.resultSetToTableModel(rs));
+    }
+    catch(Exception e){
+    JOptionPane.showMessageDialog(null, e);
+    }
+    finally {
+            
+            try{
+                rs.close();
+                stat.close();
+                
+            }
+            catch(Exception e){
+                
+            }
+        }
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -343,14 +365,47 @@ ResultSet resultat=null;
             {
                 JOptionPane.showMessageDialog(null,e);
             }
+        Update_table();
+        rechercher_doc.setText("");
+        nom_doc.setText("");
+        chemp_doc.setText(""); 
         }
-        //aprés le enregistre
-                   
-         //ontri tout les info dans la fenetre
+       
     }                                   
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {                                       
         // supprimer un document
+        int p = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer l'enregistrement?","Effacer",JOptionPane.YES_NO_OPTION);
+        if(p==0){
+            conn=Database.java_db();
+            String sql ="delete from Test.document where ID=? ";
+            try{
+                stat=conn.prepareStatement(sql);
+                stat.setString(1, rechercher_doc.getText());
+                stat.execute();
+
+                JOptionPane.showMessageDialog(null,"Enregistrement supprimé");
+
+            }catch(Exception e){
+
+                JOptionPane.showMessageDialog(null, e);
+            }finally {
+
+                try{
+                    rs.close();
+                    stat.close();
+
+                }
+                catch(Exception e){
+
+                }
+            }
+        
+         Update_table();//mise a jour automatique sont re ovrir la fenetre
+        rechercher_doc.setText("");
+        nom_doc.setText("");
+        chemp_doc.setText(""); 
+        }
     }                                      
 
     private void clearActionPerformed(java.awt.event.ActionEvent evt) {                                      
